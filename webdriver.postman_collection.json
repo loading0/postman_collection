@@ -1,0 +1,350 @@
+{
+	"info": {
+		"_postman_id": "66745233-7225-4608-a3d3-9d9b45d66abe",
+		"name": "webdriver",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "25558455"
+	},
+	"item": [
+		{
+			"name": "SessionConnect",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonRes = pm.response.json()\r",
+							"var session_id = jsonRes.value.sessionId\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"session was established\", function () {\r",
+							"    pm.expect(!!(session_id)).not.to.eql(null);\r",
+							"});\r",
+							"\r",
+							"console.log(session_id)\r",
+							"pm.environment.set(\"sessionId\", session_id)"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"capabilities\": {\r\n        \"firstMatch\": [{}],\r\n        \"alwaysMatch\": {\r\n            \"browserName\": \"chrome\",\r\n            //\"version\": \"108.0.5359.125\",\r\n            //\"platform\": \"windows\",\r\n            \"pageLoadStrategy\": \"normal\",\r\n            \"goog:chromeOptions\": {\r\n                \"extensions\":[],\r\n                \"args\": [\"--windows-size=1920,1080\", \"--no-sandbox\", \"--start-maximized\"]\r\n            }\r\n        } \r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{remoteHost}}",
+					"host": [
+						"{{remoteHost}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "OpenUrl",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonRes = pm.response.json();\r",
+							"var value = jsonRes.value;\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"open url is OK\", function() {\r",
+							"    pm.expect(value).to.eql(null);\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"url\":\"https://www.baidu.com\"\r\n}  ",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{remoteHost}}/{{sessionId}}/url",
+					"host": [
+						"{{remoteHost}}"
+					],
+					"path": [
+						"{{sessionId}}",
+						"url"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "locateInput",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonRes = pm.response.json();\r",
+							"var value = jsonRes.value;\r",
+							"var key = Object.keys(value)[0];\r",
+							"console.log(\"key:\",key);\r",
+							"var input_id = value[key];\r",
+							"console.log(\"input_id:\",input_id);\r",
+							"\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"// 断言十分定位到元素\r",
+							"pm.test(\"element located is OK\", function () {\r",
+							"    pm.expect(key).to.be.not.eql(null);\r",
+							"});\r",
+							"pm.environment.set(\"inputId\", input_id);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"using\": \"css selector\",\r\n    \"value\": \"#kw\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{remoteHost}}/{{sessionId}}/element",
+					"host": [
+						"{{remoteHost}}"
+					],
+					"path": [
+						"{{sessionId}}",
+						"element"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "inputText",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonRes = pm.response.json();\r",
+							"var value = JSON.stringify(jsonRes.value);\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"// var errorMsg = 'no such element';\r",
+							"// pm.test(\"response not contains errorMsg\", function () {\r",
+							"//     pm.expect(value).to.not.contain(errorMsg);\r",
+							"// });\r",
+							"const errorMsgList = ['error','invalid session id', 'no such element']\r",
+							"errorMsgList.forEach(errormsg =>\r",
+							"    pm.test(\"response not contains errorMsg\", function () {\r",
+							"    pm.expect(value).to.not.contain(errormsg);\r",
+							"})\r",
+							")"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"text\": \"webdriver\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{remoteHost}}/{{sessionId}}/element/{{inputId}}/value",
+					"host": [
+						"{{remoteHost}}"
+					],
+					"path": [
+						"{{sessionId}}",
+						"element",
+						"{{inputId}}",
+						"value"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "locateSearchBtn",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonRes = pm.response.json()\r",
+							"var value = jsonRes.value\r",
+							"var key = Object.keys(value)[0]\r",
+							"var search_btn_id = jsonRes.value[key]\r",
+							"console.log(\"search_btn_id:\", search_btn_id)\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"// 断言十分定位到元素\r",
+							"pm.test(\"element located is OK\", function () {\r",
+							"    pm.expect(key).to.be.not.eql(null);\r",
+							"});\r",
+							"pm.environment.set(\"searchId\", search_btn_id)"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"using\": \"css selector\",\r\n    \"value\": \"#su\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{remoteHost}}/{{sessionId}}/element",
+					"host": [
+						"{{remoteHost}}"
+					],
+					"path": [
+						"{{sessionId}}",
+						"element"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "clickSearchBtn",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonRes = pm.response.json();\r",
+							"var value = JSON.stringify(jsonRes.value);\r",
+							"var errorMsg = 'no such element';\r",
+							"\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"response not contains errorMsg\", function () {\r",
+							"    pm.expect(value).to.not.contain(errorMsg);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"button\": 0\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{remoteHost}}/{{sessionId}}/element/{{searchId}}/click",
+					"host": [
+						"{{remoteHost}}"
+					],
+					"path": [
+						"{{sessionId}}",
+						"element",
+						"{{searchId}}",
+						"click"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "quitSession",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonRes = pm.response.json();\r",
+							"var value = JSON.stringify(jsonRes.value);\r",
+							"var errorMsg = 'errorMsg';\r",
+							"\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"response not contains errorMsg\", function () {\r",
+							"    pm.expect(value).to.not.contain(errorMsg);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{remoteHost}}/{{sessionId}}",
+					"host": [
+						"{{remoteHost}}"
+					],
+					"path": [
+						"{{sessionId}}"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
